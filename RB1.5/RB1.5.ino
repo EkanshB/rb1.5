@@ -2,23 +2,23 @@
 #include <PestoLink-Receive.h>
 
 //If your robot has more than a drivetrain, add those actuators here
-NoU_motor frontLeftMotor(1);
+NoU_Motor frontLeftMotor(7);
 NoU_Motor frontRightMotor(2);
-NoU_Motor rearLeftMotor(3);
-NoU_motor rearRightMotor(4);
+NoU_Motor rearLeftMotor(8);
+NoU_Motor rearRightMotor(1);
 
 //This creates the drivetrain object, you shouldn't have to mess with this
 NoU_Drivetrain drivetrain(&frontLeftMotor, &frontRightMotor, &rearLeftMotor, &rearRightMotor);
 
 //The gyrospoce sensor is by default precise, but not accurate. This is fixable by adjusting the angular scale factor.
 //Tuning procedure:
-//Rotate the robot in place exactl 5 times. Use the Serial printour to read the current gyro angle in Radians, we will call this "measured_angle".
+//Rotate the robot in place exactly 5 times. Use the Serial printour to read the current gyro angle in Radians, we will call this "measured_angle".
 //measured_angle should be nearly 31.416 which is 5*2*pi. Update measured_angle below to complete the tuning process.
-float measured angle = 31.416;
+float measured_angle = 31.416;
 float angular_scale = (5.0*2.0*PI) / measured_angle;
 
 void setup() {
-  PestoLin.begin("RB1.5");
+  PestoLink.begin("RB1.5");
   Serial.begin(115200);
 
   NoU3.begin();
@@ -49,11 +49,14 @@ void loop() {
         float heading = NoU3.yaw * angular_scale;
 
         //Rotate joystick vector to be robot-centric
-        float cosA = cos(heading);
-        float sinA = sin(heading);
+        //float cosA = cos(heading);
+        //float sinA = sin(heading);
 
-        float robotPowerX = fieldPowerX * cosA + fieldPowerY * sinA;
-        float robotPowerY = -fieldPowerX * sinA + fieldPowerY * cosA;
+        //float robotPowerX = fieldPowerX * cosA + fieldPowerY * sinA;
+        //float robotPowerY = -fieldPowerX * sinA + fieldPowerY * cosA;
+
+        float robotPowerX = fieldPowerX + fieldPowerY;
+        float robotPowerY = -fieldPowerX + fieldPowerY;
 
         //set motor power
         drivetrain.holonomicDrive(robotPowerX, robotPowerY, rotationPower);
