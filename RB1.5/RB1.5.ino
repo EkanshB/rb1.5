@@ -6,13 +6,14 @@ NoU_Motor frontLeftMotor(7);
 NoU_Motor frontRightMotor(2);
 NoU_Motor rearLeftMotor(8);
 NoU_Motor rearRightMotor(1);
+NoU_Servo climb(1);
 
 //This creates the drivetrain object, you shouldn't have to mess with this
 NoU_Drivetrain drivetrain(&frontLeftMotor, &frontRightMotor, &rearLeftMotor, &rearRightMotor);
 
 //The gyrospoce sensor is by default precise, but not accurate. This is fixable by adjusting the angular scale factor.
 //Tuning procedure:
-//Rotate the robot in place exactly 5 times. Use the Serial printour to read the current gyro angle in Radians, we will call this "measured_angle".
+//Rotate the robot in place exactly 5 times. Use the Serial printout to read the current gyro angle in Radians, we will call this "measured_angle".
 //measured_angle should be nearly 31.416 which is 5*2*pi. Update measured_angle below to complete the tuning process.
 float measured_angle = 31.416;
 float angular_scale = (5.0*2.0*PI) / measured_angle;
@@ -34,6 +35,7 @@ void loop() {
     if (lastPrintTime +100 < millis()){
         Serial.printf("gyro yaw (radians): %.3f\r\n", NoU3.yaw * angular_scale );
         lastPrintTime = millis();
+        PestoLink.printfTerminal("gyro yaw (radians): %.3f\r\n", NoU3.yaw * angular_scale);
     }
 
     //This measures your batterys voltage and sends it to PestoLink
@@ -62,6 +64,15 @@ void loop() {
         drivetrain.holonomicDrive(robotPowerX, robotPowerY, rotationPower);
 
         NoU3.setServiceLight(LIGHT_ENABLED);
+
+        if(PestoLink.buttonHeld(0)){
+            climb.write(-10);
+        }
+
+        if(PestoLink.buttonHeld(1)){
+            climb.write(180);
+        }
+
     } else {
         drivetrain.holonomicDrive(0, 0, 0); // stop motors if connection is lost
 
